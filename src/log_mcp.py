@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 
 from mcp.server.fastmcp import FastMCP
+from log_filter_utils import categorize_extracted_fields, select_fields_by_indices
 
 # Initialize MCP server
 mcp = FastMCP("LogClusterServer")
@@ -470,6 +471,217 @@ def log_query(
             "message": str(e)
         }
 
+@mcp.tool()
+def log_filter(
+    cluster_id: int,
+    pattern: str,
+    whitespace_index: List[int] = [],
+    X_index: List[int] = [],
+    limit: int = 100,
+    offset: int = 0
+) -> Dict[str, Any]:
+    """
+    Extract specific fields from log entries by cluster ID and pattern with field-level selection.
+    
+    This tool enables targeted extraction of \"columns\" of data from structured logs by leveraging
+    pattern-based field extraction. LLMs can specify exactly which fields they want using indices
+    for whitespace-separated and X-masked content.
+    
+    Args:
+        cluster_id: Cluster ID to filter by (exact match)
+        pattern: Pattern substring to filter by (partial match)
+        whitespace_index: List of indices for whitespace-separated fields (default: [])
+        X_index: List of indices for X-masked fields (enclosed content) (default: [])
+        limit: Maximum number of results to return (default: 100, max: 1000)
+        offset: Number of results to skip (default: 0)
+    
+    Returns:
+        Dictionary containing:
+        - success: Boolean indicating operation success
+        - data: {
+            extracted_data: List of {
+                raw_log: Original log line,
+                whitespace_fields: List of selected whitespace fields,
+                X_fields: List of selected X-masked fields
+            },
+            metadata: {
+                current_offset: Current offset position,
+                returned_count: Number of logs returned,
+                requested_limit: Requested limit,
+                isEnd: Boolean indicating if no more results available,
+                total_matches: Total number of matching logs found,
+                cluster_id: Queried cluster ID,
+                pattern_filter: Applied pattern filter,
+                whitespace_indices: Applied whitespace indices,
+                X_indices: Applied X-masked indices
+            }
+        }
+        - error/message: Error information if unsuccessful
+        
+    Example Usage:
+        # Get IP addresses (whitespace field 0) and timestamps (X-masked field 0) from web logs
+        log_filter(cluster_id=3, pattern=\". - - [X] \\\"X\\\"\", whitespace_index=[0], X_index=[0], limit=10)
+        
+        # Extract multiple fields: IPs, response codes, and HTTP methods  
+        log_filter(cluster_id=3, pattern=\"web\", whitespace_index=[0, 3], X_index=[1], limit=20)
+    """
+    
+    try:
+        # Parameter validation
+        if limit <= 0:
+            return {
+                "success": False,
+                "error": "Invalid limit",
+                "message": "Limit must be greater than 0"
+            }
+        
+        if offset < 0:
+            return {
+                "success": False,
+                "error": "Invalid offset",
+                "message": "Offset must be non-negative"
+            }
+        
+        if limit > 1000:
+            return {
+                "success": False,
+                "error": "Limit too large",
+                "message": "Limit cannot exceed 1000 to prevent performance issues"
+            }
+            
+        # Validate indices are non-negative
+        if any(idx < 0 for idx in whitespace_index):
+            return {
+                "success": False,
+                "error": "Invalid whitespace index",
+                "message": "All whitespace indices must be non-negative"
+            }
+            
+        if any(idx < 0 for idx in X_index):
+            return {
+                "success": False,
+                "error": "Invalid X index",
+                "message": "All X indices must be non-negative"
+            }
+        
+        # Load CSV data
+        script_dir = Path(__file__).parent
+        csv_path = script_dir.parent / "data" / "mcp" / "data.log"
+        
+        if not csv_path.exists():
+            return {
+                "success": False,
+                "error": "Data file not found",
+                "message": f"Log data file not found at: {csv_path.absolute()}",
+                "suggestion": "Make sure you've run cluster.py to generate log data"
+            }
+        
+        # Read and filter CSV data
+        matching_logs = []
+        total_processed = 0
+        
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            csv_reader = csv.DictReader(f)
+            
+            for row in csv_reader:
+                try:
+                    row_cluster_id = int(row['cluster'])
+                    row_pattern = row['pattern']
+                    row_raw_log = row['raw_log']
+                    
+                    # Apply filters
+                    if (row_cluster_id == cluster_id and 
+                        pattern.lower() in row_pattern.lower()):
+                        matching_logs.append({
+                            'cluster': row_cluster_id,
+                            'raw_log': row_raw_log,
+                            'pattern': row_pattern
+                        })
+                        
+                    total_processed += 1
+                    
+                except (ValueError, KeyError) as e:
+                    # Skip malformed rows
+                    continue
+        
+        # Calculate total matches
+        total_matches = len(matching_logs)
+        
+        # Apply pagination
+        start_idx = offset
+        end_idx = offset + limit
+        paginated_logs = matching_logs[start_idx:end_idx]
+        
+        # Determine if this is the end
+        is_end = end_idx >= total_matches
+        
+        # Extract fields for each log entry
+        extracted_data = []
+        extraction_errors = 0
+        
+        for log_entry in paginated_logs:
+            try:
+                # Extract and categorize fields from the log
+                whitespace_fields, x_fields = categorize_extracted_fields(
+                    log_entry['raw_log'], 
+                    log_entry['pattern']
+                )
+                
+                # Select specific fields based on provided indices
+                selected_whitespace, selected_x = select_fields_by_indices(
+                    whitespace_fields, x_fields, whitespace_index, X_index
+                )
+                
+                extracted_data.append({
+                    'raw_log': log_entry['raw_log'],
+                    'whitespace_fields': selected_whitespace,
+                    'X_fields': selected_x
+                })
+                
+            except Exception as e:
+                # Track extraction errors but continue processing
+                extraction_errors += 1
+                # Add empty entry to maintain result count consistency
+                extracted_data.append({
+                    'raw_log': log_entry['raw_log'],
+                    'whitespace_fields': [],
+                    'X_fields': [],
+                    'extraction_error': str(e)
+                })
+        
+        return {
+            "success": True,
+            "data": {
+                "extracted_data": extracted_data,
+                "metadata": {
+                    "current_offset": offset,
+                    "returned_count": len(extracted_data),
+                    "requested_limit": limit,
+                    "isEnd": is_end,
+                    "total_matches": total_matches,
+                    "cluster_id": cluster_id,
+                    "pattern_filter": pattern,
+                    "whitespace_indices": whitespace_index,
+                    "X_indices": X_index,
+                    "extraction_errors": extraction_errors if extraction_errors > 0 else None
+                }
+            }
+        }
+        
+    except FileNotFoundError as e:
+        return {
+            "success": False,
+            "error": "Data file access error",
+            "message": str(e)
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": "Unexpected error",
+            "message": str(e)
+        }
+
 # Server entry point
 if __name__ == "__main__":
     # Test the server functionality when run directly
@@ -525,8 +737,43 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"❌ Query test failed: {e}")
     
+    # Test log_filter tool
+    print("\nTesting log_filter tool...")
+    
+    try:
+        # Test with sample parameters - extract first whitespace field and first X field
+        filter_result = log_filter(
+            cluster_id=3,
+            pattern=":",
+            whitespace_index=[0],
+            X_index=[0],
+            limit=3,
+            offset=0
+        )
+        
+        if filter_result.get("success"):
+            data = filter_result["data"]
+            metadata = data["metadata"]
+            print(f"✅ Filter successful: found {metadata['total_matches']} total matches")
+            print(f"   Returned {metadata['returned_count']} logs from cluster {metadata['cluster_id']}")
+            print(f"   Pattern filter: '{metadata['pattern_filter']}'")
+            print(f"   Whitespace indices: {metadata['whitespace_indices']}")
+            print(f"   X-masked indices: {metadata['X_indices']}")
+            
+            if data["extracted_data"]:
+                first_entry = data["extracted_data"][0]
+                print(f"   First whitespace fields: {first_entry['whitespace_fields']}")
+                print(f"   First X fields: {first_entry['X_fields']}")
+        else:
+            print(f"❌ Filter failed: {filter_result.get('error', 'Unknown error')}")
+            print(f"   Message: {filter_result.get('message', 'No details available')}")
+            
+    except Exception as e:
+        print(f"❌ Filter test failed: {e}")
+    
     print("\n💡 To use as MCP server, run: uv run mcp dev src/log_mcp.py")
     print("   Or integrate with Claude Desktop via MCP configuration")
     print("\n🔧 Available tools:")
     print("   - log_schema(): Get all cluster IDs and patterns")
     print("   - log_query(cluster_id, pattern, limit, offset, shallow): Query logs with filters")
+    print("   - log_filter(cluster_id, pattern, whitespace_index, X_index, limit, offset): Extract specific fields by indices")
