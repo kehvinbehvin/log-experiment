@@ -129,6 +129,38 @@ def select_fields_by_indices(whitespace_fields: List[str], x_fields: List[str],
     return selected_whitespace, selected_x
 
 
+def select_fields_by_unified_indices(all_fields: List[str], field_indices: List[int]) -> List[str]:
+    """
+    Select specific fields using unified field indices.
+    
+    This function provides a unified indexing system where all extracted fields
+    (both whitespace and X-masked) are treated as a single ordered list.
+    
+    Args:
+        all_fields: All extracted fields in order (from extract_fields)
+        field_indices: List of indices to select from the unified field list
+        
+    Returns:
+        List of selected fields in the same order as the indices
+        
+    Note:
+        Invalid indices are silently ignored to prevent errors.
+        
+    Example:
+        >>> all_fields = ['192.168.1.1', 'user', 'group', '22/Jan/2019', 'GET /test']
+        >>> select_fields_by_unified_indices(all_fields, [0, 3, 4])
+        ['192.168.1.1', '22/Jan/2019', 'GET /test']
+    """
+    selected_fields = []
+    
+    # Select fields by unified indices
+    for idx in field_indices:
+        if 0 <= idx < len(all_fields):
+            selected_fields.append(all_fields[idx])
+    
+    return selected_fields
+
+
 # === Internal Implementation Functions ===
 
 def _parse_pattern_tokens(pattern_tokens: List[str]) -> List[Dict]:
@@ -412,10 +444,14 @@ def test_field_extraction():
         print(f"X-masked:        {x_fields}")
         print(f"Expected X:      {test_case['expected_x']}")
         
-        # Test field selection
+        # Test field selection (old dual-index method)
         selected_ws, selected_x = select_fields_by_indices(whitespace_fields, x_fields, [0, 1], [0])
         print(f"Selected ws[0,1]: {selected_ws}")
         print(f"Selected X[0]:   {selected_x}")
+        
+        # Test unified field selection (new method)
+        selected_unified = select_fields_by_unified_indices(all_fields, [0, 1, 4])
+        print(f"Unified [0,1,4]: {selected_unified}")
         
         print("-" * 60)
 

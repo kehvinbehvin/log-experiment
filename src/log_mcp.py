@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 
 from mcp.server.fastmcp import FastMCP
-from log_filter_utils import categorize_extracted_fields, select_fields_by_indices
+from log_filter_utils import extract_fields, select_fields_by_unified_indices
 
 # Initialize MCP server
 mcp = FastMCP("LogClusterServer")
@@ -475,8 +475,7 @@ def log_query(
 def log_filter(
     cluster_id: int,
     pattern: str,
-    whitespace_index: List[int] = [],
-    X_index: List[int] = [],
+    field_indices: List[int] = [],
     limit: int = 100,
     offset: int = 0
 ) -> Dict[str, Any]:
@@ -489,9 +488,8 @@ def log_filter(
     
     Args:
         cluster_id: Cluster ID to filter by (exact match)
-        pattern: Pattern substring to filter by (partial match)
-        whitespace_index: List of indices for whitespace-separated fields (default: [])
-        X_index: List of indices for X-masked fields (enclosed content) (default: [])
+        pattern: Pattern substring to filter by (partial match)  
+        field_indices: List of field indices to select from unified field list (default: [])
         limit: Maximum number of results to return (default: 100, max: 1000)
         offset: Number of results to skip (default: 0)
     
@@ -549,19 +547,12 @@ def log_filter(
                 "message": "Limit cannot exceed 1000 to prevent performance issues"
             }
             
-        # Validate indices are non-negative
-        if any(idx < 0 for idx in whitespace_index):
+        # Validate field indices are non-negative
+        if any(idx < 0 for idx in field_indices):
             return {
                 "success": False,
-                "error": "Invalid whitespace index",
-                "message": "All whitespace indices must be non-negative"
-            }
-            
-        if any(idx < 0 for idx in X_index):
-            return {
-                "success": False,
-                "error": "Invalid X index",
-                "message": "All X indices must be non-negative"
+                "error": "Invalid field index",
+                "message": "All field indices must be non-negative"
             }
         
         # Load CSV data
@@ -621,21 +612,21 @@ def log_filter(
         
         for log_entry in paginated_logs:
             try:
-                # Extract and categorize fields from the log
-                whitespace_fields, x_fields = categorize_extracted_fields(
+                # Extract all fields from the log using unified extraction
+                all_fields = extract_fields(
                     log_entry['raw_log'], 
                     log_entry['pattern']
                 )
                 
                 # Select specific fields based on provided indices
-                selected_whitespace, selected_x = select_fields_by_indices(
-                    whitespace_fields, x_fields, whitespace_index, X_index
+                selected_fields = select_fields_by_unified_indices(
+                    all_fields, field_indices
                 )
                 
                 extracted_data.append({
                     'raw_log': log_entry['raw_log'],
-                    'whitespace_fields': selected_whitespace,
-                    'X_fields': selected_x
+                    'selected_fields': selected_fields,
+                    'field_indices': field_indices
                 })
                 
             except Exception as e:
@@ -644,8 +635,8 @@ def log_filter(
                 # Add empty entry to maintain result count consistency
                 extracted_data.append({
                     'raw_log': log_entry['raw_log'],
-                    'whitespace_fields': [],
-                    'X_fields': [],
+                    'selected_fields': [],
+                    'field_indices': field_indices,
                     'extraction_error': str(e)
                 })
         
@@ -661,8 +652,7 @@ def log_filter(
                     "total_matches": total_matches,
                     "cluster_id": cluster_id,
                     "pattern_filter": pattern,
-                    "whitespace_indices": whitespace_index,
-                    "X_indices": X_index,
+                    "field_indices": field_indices,
                     "extraction_errors": extraction_errors if extraction_errors > 0 else None
                 }
             }
@@ -741,12 +731,11 @@ if __name__ == "__main__":
     print("\nTesting log_filter tool...")
     
     try:
-        # Test with sample parameters - extract first whitespace field and first X field
+        # Test with sample parameters - extract unified field indices
         filter_result = log_filter(
             cluster_id=3,
             pattern=":",
-            whitespace_index=[0],
-            X_index=[0],
+            field_indices=[0, 1, 2],
             limit=3,
             offset=0
         )
@@ -757,13 +746,12 @@ if __name__ == "__main__":
             print(f"✅ Filter successful: found {metadata['total_matches']} total matches")
             print(f"   Returned {metadata['returned_count']} logs from cluster {metadata['cluster_id']}")
             print(f"   Pattern filter: '{metadata['pattern_filter']}'")
-            print(f"   Whitespace indices: {metadata['whitespace_indices']}")
-            print(f"   X-masked indices: {metadata['X_indices']}")
+            print(f"   Field indices: {metadata['field_indices']}")
             
             if data["extracted_data"]:
                 first_entry = data["extracted_data"][0]
-                print(f"   First whitespace fields: {first_entry['whitespace_fields']}")
-                print(f"   First X fields: {first_entry['X_fields']}")
+                print(f"   Selected fields: {first_entry['selected_fields']}")
+                print(f"   Field indices used: {first_entry['field_indices']}")
         else:
             print(f"❌ Filter failed: {filter_result.get('error', 'Unknown error')}")
             print(f"   Message: {filter_result.get('message', 'No details available')}")
@@ -776,4 +764,4 @@ if __name__ == "__main__":
     print("\n🔧 Available tools:")
     print("   - log_schema(): Get all cluster IDs and patterns")
     print("   - log_query(cluster_id, pattern, limit, offset, shallow): Query logs with filters")
-    print("   - log_filter(cluster_id, pattern, whitespace_index, X_index, limit, offset): Extract specific fields by indices")
+    print("   - log_filter(cluster_id, pattern, field_indices, limit, offset): Extract specific fields by unified indices")
