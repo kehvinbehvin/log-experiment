@@ -1,0 +1,688 @@
+{
+  "signature_to_stable_id": {
+    "0122aa572fe8": 0,
+    "c7c4897bde08": 1,
+    "2ed0a257b10d": 2,
+    "fe9edabe80a7": 3,
+    "bc74f0b07c1e": 4,
+    "16b4a4984c5b": 5,
+    "17d1d78e2861": 6,
+    "bd07768fd136": 7,
+    "e94992f3994a": 8,
+    "06d0a4731f34": 9,
+    "3bb8e0855e49": 10,
+    "4db14f9c7223": 11,
+    "d59af50d111a": 12,
+    "8b1970e2f45a": 13,
+    "2a1c51a2441d": 14,
+    "e29089ab10f0": 15,
+    "66af152d5697": 16,
+    "836c4d6e4520": 17,
+    "2dcd77b5c459": 18,
+    "898fa68119ca": 19,
+    "fca37ee50760": 20,
+    "15cb54abf9c3": 21,
+    "d0dd6435808c": 22,
+    "d2b20ede8a99": 23,
+    "8c850f6d2a86": 24,
+    "29b68a0b8365": 25,
+    "afcc0c8884cd": 26,
+    "ff14c432b3bc": 27,
+    "754a35ebaeea": 28,
+    "6d0960597c8f": 29,
+    "ad04ee5c0aae": 30,
+    "20fdbee56c0e": 31,
+    "c25a73c9249a": 32,
+    "6ad668ee796a": 33,
+    "f5ea005c6df0": 34,
+    "57e2b405ac0a": 35,
+    "30a73fb35912": 36
+  },
+  "stable_id_to_info": {
+    "0": {
+      "signature_hash": "0122aa572fe8",
+      "patterns": [
+        "- . . - - - : - - - - . . . - - - : -",
+        "- . . - - - : - - - - . . . - - - : - -",
+        "- . . - - - : - - - - . . . - - - : - :"
+      ],
+      "training_size": 32,
+      "sample_logs": [
+        "- 1117838570 2005.06.03 R02-M1-N0-C:J12-U11 2005-06-03-15.42.50.675872 R02-M1-N0-C:J12-U11 RAS KERNEL INFO instruction cache parity error corrected",
+        "- 1117838573 2005.06.03 R02-M1-N0-C:J12-U11 2005-06-03-15.42.53.276129 R02-M1-N0-C:J12-U11 RAS KERNEL INFO instruction cache parity error corrected"
+      ]
+    },
+    "1": {
+      "signature_hash": "c7c4897bde08",
+      "patterns": [
+        "- . . - - - : - - - - . . . - - - : - , ,",
+        "- . . - - - : - - - - . . . - - - : - ( ) , ,"
+      ],
+      "training_size": 16,
+      "sample_logs": [
+        "- 1117848119 2005.06.03 R16-M1-N2-C:J17-U01 2005-06-03-18.21.59.871925 R16-M1-N2-C:J17-U01 RAS KERNEL INFO CE sym 2, at 0x0b85eee0, mask 0x05",
+        "- 1117942120 2005.06.04 R30-M0-N7-C:J08-U01 2005-06-04-20.28.40.767551 R30-M0-N7-C:J08-U01 RAS KERNEL INFO CE sym 20, at 0x1438f9e0, mask 0x40"
+      ]
+    },
+    "2": {
+      "signature_hash": "2ed0a257b10d",
+      "patterns": [
+        "- . . - - - : - - - - . . . - - - : - ."
+      ],
+      "training_size": 144,
+      "sample_logs": [
+        "- 1117955341 2005.06.05 R25-M0-N7-C:J02-U01 2005-06-05-00.09.01.903373 R25-M0-N7-C:J02-U01 RAS KERNEL INFO generating core.2275",
+        "- 1117955392 2005.06.05 R24-M1-N8-C:J09-U11 2005-06-05-00.09.52.516674 R24-M1-N8-C:J09-U11 RAS KERNEL INFO generating core.862"
+      ]
+    },
+    "3": {
+      "signature_hash": "fe9edabe80a7",
+      "patterns": [
+        "- : : . : = , = , = , = , = , = , = , = , = , = , = - , = . =",
+        "- : : . : : = , =",
+        "- : : . : : = , = , = , ="
+      ],
+      "training_size": 35,
+      "sample_logs": [
+        "03-17 16:13:38.820  1702  8671 D PowerManagerService: ready=true,policy=3,wakefulness=1,wksummary=0x23,uasummary=0x1,bootcompleted=true,boostinprogress=false,waitmodeenable=false,mode=false,manual=38,auto=-1,adj=0.0userId=0",
+        "03-17 16:13:38.907  1702 10454 D PowerManagerService: ready=true,policy=3,wakefulness=1,wksummary=0x23,uasummary=0x1,bootcompleted=true,boostinprogress=false,waitmodeenable=false,mode=false,manual=38,auto=-1,adj=0.0userId=0"
+      ]
+    },
+    "4": {
+      "signature_hash": "bc74f0b07c1e",
+      "patterns": [
+        "- : : . :",
+        "- : : . : . . .",
+        "- : : . : :"
+      ],
+      "training_size": 30,
+      "sample_logs": [
+        "03-17 16:13:38.859  2227  2227 D TextView: visible is system.time.showampm",
+        "03-17 16:13:38.861  2227  2227 D TextView: mVisiblity.getValue is false"
+      ]
+    },
+    "5": {
+      "signature_hash": "16b4a4984c5b",
+      "patterns": [
+        "- - : : , : .",
+        "- - : : , .",
+        "- : : . : ,"
+      ],
+      "training_size": 45,
+      "sample_logs": [
+        "03-17 16:13:39.069  1702  1815 I WindowManager: orientation change is complete, call stopFreezingDisplayLocked",
+        "03-17 16:13:39.207  1702  1815 I WindowManager: Application requested orientation 1, got rotation 0 which has compatible metrics"
+      ]
+    },
+    "6": {
+      "signature_hash": "17d1d78e2861",
+      "patterns": [
+        ". $ : - / . . .",
+        ". $ : / . . .",
+        ". $ : . . . : : / . . . :"
+      ],
+      "training_size": 75,
+      "sample_logs": [
+        "03-17 16:13:45.466  1702 17632 W ActivityManager: java.lang.ClassCastException: android.os.BinderProxy cannot be cast to com.android.server.am.ActivityRecord$Token",
+        "081109 203615 148 INFO dfs.DataNode$PacketResponder: PacketResponder 1 for block blk_38865049064139660 terminating"
+      ]
+    },
+    "7": {
+      "signature_hash": "bd07768fd136",
+      "patterns": [
+        "[X] [X] . ( ) / / / / ."
+      ],
+      "training_size": 30,
+      "sample_logs": [
+        "[Sun Dec 04 04:47:44 2005] [notice] workerEnv.init() ok /etc/httpd/conf/workers2.properties",
+        "[Sun Dec 04 04:51:14 2005] [notice] workerEnv.init() ok /etc/httpd/conf/workers2.properties"
+      ]
+    },
+    "8": {
+      "signature_hash": "e94992f3994a",
+      "patterns": [
+        "[X] [X]"
+      ],
+      "training_size": 29,
+      "sample_logs": [
+        "[Sun Dec 04 04:47:44 2005] [error] mod_jk child workerEnv in error state 6",
+        "[Sun Dec 04 04:51:18 2005] [error] mod_jk child workerEnv in error state 6"
+      ]
+    },
+    "9": {
+      "signature_hash": "06d0a4731f34",
+      "patterns": [
+        "[X] [X] ( )"
+      ],
+      "training_size": 41,
+      "sample_logs": [
+        "[Sun Dec 04 04:51:08 2005] [notice] jk2_init() Found child 6725 in scoreboard slot 10",
+        "[Sun Dec 04 04:51:09 2005] [notice] jk2_init() Found child 6726 in scoreboard slot 8"
+      ]
+    },
+    "10": {
+      "signature_hash": "3bb8e0855e49",
+      "patterns": [
+        ". : * . : : . . . :",
+        ". : * . : : . . . : -"
+      ],
+      "training_size": 18,
+      "sample_logs": [
+        "081109 204005 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.73.220:50010 is added to blk_7128370237687728475 size 67108864",
+        "081109 204132 26 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.43.115:50010 is added to blk_3050920587428079149 size 67108864"
+      ]
+    },
+    "11": {
+      "signature_hash": "4db14f9c7223",
+      "patterns": [
+        "- ( )"
+      ],
+      "training_size": 88,
+      "sample_logs": [
+        "2568643 node-70 action start 1074119817 1 clusterAddMember  (command 1902)",
+        "2570772 node-124 action start 1074123150 1 clusterAddMember  (command 1900)"
+      ]
+    },
+    "12": {
+      "signature_hash": "d59af50d111a",
+      "patterns": [
+        "- - : : , [X] . . . . . . . . :",
+        "- - : : , [X] . . . . . : - - . . . . / -",
+        "- - : : , [X] . . . . : :"
+      ],
+      "training_size": 84,
+      "sample_logs": [
+        "2015-10-18 18:01:47,978 INFO [main] org.apache.hadoop.mapreduce.v2.app.MRAppMaster: Created MRAppMaster for application appattempt_1445144423722_0020_000001",
+        "2015-10-18 18:01:48,963 INFO [main] org.apache.hadoop.mapreduce.v2.app.MRAppMaster: Executing with tokens:"
+      ]
+    },
+    "13": {
+      "signature_hash": "8b1970e2f45a",
+      "patterns": [
+        "- : : : | | |"
+      ],
+      "training_size": 20,
+      "sample_logs": [
+        "20171223-22:15:29:606|Step_LSC|30002312|onStandStepChanged 3579",
+        "20171223-22:15:29:635|Step_StandStepCounter|30002312|flush sensor data"
+      ]
+    },
+    "14": {
+      "signature_hash": "2a1c51a2441d",
+      "patterns": [
+        "- : : : | | | :"
+      ],
+      "training_size": 26,
+      "sample_logs": [
+        "20171223-22:15:29:615|Step_LSC|30002312|onExtend:1514038530000 14 0 4",
+        "20171223-22:15:29:649|Step_StandReportReceiver|30002312|REPORT : 7007 5002 150089 240"
+      ]
+    },
+    "15": {
+      "signature_hash": "e29089ab10f0",
+      "patterns": [
+        "- : : : | | | = # # # # # # # # # #"
+      ],
+      "training_size": 24,
+      "sample_logs": [
+        "20171223-22:15:29:635|Step_SPUtils|30002312| getTodayTotalDetailSteps = 1514038440000##6993##548365##8661##12266##27164404",
+        "20171223-22:15:29:636|Step_SPUtils|30002312|setTodayTotalDetailSteps=1514038440000##7007##548365##8661##12361##27173954"
+      ]
+    },
+    "16": {
+      "signature_hash": "66af152d5697",
+      "patterns": [
+        "- : : : | | | ="
+      ],
+      "training_size": 24,
+      "sample_logs": [
+        "20171223-22:15:29:645|Step_ExtSDM|30002312|calculateCaloriesWithCache totalCalories=126775",
+        "20171223-22:15:29:648|Step_ExtSDM|30002312|calculateAltitudeWithCache totalAltitude=240"
+      ]
+    },
+    "17": {
+      "signature_hash": "836c4d6e4520",
+      "patterns": [
+        ": : ( ) [X] : ; = = = = = = . . .",
+        ": : ( ) [X] : ; = = = = = = . .",
+        ": : ( ) [X] : ; = = = = = = . . . ="
+      ],
+      "training_size": 25,
+      "sample_logs": [
+        "Jun 14 15:16:01 combo sshd(pam_unix)[19939]: authentication failure; logname= uid=0 euid=0 tty=NODEVssh ruser= rhost=218.188.2.4",
+        "Jun 14 15:16:02 combo sshd(pam_unix)[19937]: authentication failure; logname= uid=0 euid=0 tty=NODEVssh ruser= rhost=218.188.2.4"
+      ]
+    },
+    "18": {
+      "signature_hash": "2dcd77b5c459",
+      "patterns": [
+        ": : ( ) [X] : ;",
+        ": : [X] : ( : ) : ;",
+        ": : [X] : ( ) ;"
+      ],
+      "training_size": 35,
+      "sample_logs": [
+        "Jun 14 15:16:02 combo sshd(pam_unix)[19937]: check pass; user unknown",
+        "Jun 15 12:12:34 combo sshd(pam_unix)[23397]: check pass; user unknown"
+      ]
+    },
+    "19": {
+      "signature_hash": "898fa68119ca",
+      "patterns": [
+        ": : ( ) [X] : ; = = = = = = - - - . - . . =",
+        ": : ( ) [X] : ; = = = = = = - - - . . ."
+      ],
+      "training_size": 15,
+      "sample_logs": [
+        "Jun 15 02:04:59 combo sshd(pam_unix)[20882]: authentication failure; logname= uid=0 euid=0 tty=NODEVssh ruser= rhost=220-135-151-1.hinet-ip.hinet.net  user=root",
+        "Jun 15 02:04:59 combo sshd(pam_unix)[20884]: authentication failure; logname= uid=0 euid=0 tty=NODEVssh ruser= rhost=220-135-151-1.hinet-ip.hinet.net  user=root"
+      ]
+    },
+    "20": {
+      "signature_hash": "fca37ee50760",
+      "patterns": [
+        "- . . : : / ( ) [X] :",
+        "- . . : : / ( ) [X] : ( = )",
+        "- . . : : / [X] : ( ) ( - / / . )"
+      ],
+      "training_size": 51,
+      "sample_logs": [
+        "Jun 15 04:06:18 combo su(pam_unix)[21416]: session opened for user cyrus by (uid=0)",
+        "Jun 15 04:06:19 combo su(pam_unix)[21416]: session closed for user cyrus"
+      ]
+    },
+    "21": {
+      "signature_hash": "15cb54abf9c3",
+      "patterns": [
+        ": : [X] : . . . ( - - - . . . ) : :",
+        ": : [X] : . . . ( - - - - - - - . . . ) : :",
+        ": : - - - - [X] : : . ( ) ."
+      ],
+      "training_size": 16,
+      "sample_logs": [
+        "Jun 17 07:07:00 combo ftpd[29504]: connection from 24.54.76.216 (24-54-76-216.bflony.adelphia.net) at Fri Jun 17 07:07:00 2005",
+        "Jun 17 07:07:00 combo ftpd[29508]: connection from 24.54.76.216 (24-54-76-216.bflony.adelphia.net) at Fri Jun 17 07:07:00 2005"
+      ]
+    },
+    "22": {
+      "signature_hash": "d0dd6435808c",
+      "patterns": [
+        ": : - - - - [X] : : :",
+        ": : - - - - . . [X] : : :",
+        ": : - - - - [X] : : ( : : : : : : : )"
+      ],
+      "training_size": 38,
+      "sample_logs": [
+        "Jul  1 09:01:05 calvisitor-10-105-160-95 com.apple.CDScheduler[43]: Thermal pressure state: 1 Memory pressure state: 0",
+        "Jul  1 09:03:11 calvisitor-10-105-160-95 mDNSResponder[91]: mDNS_DeregisterInterface: Frequent transitions for interface awdl0 (FE80:0000:0000:0000:D8A5:90FF:FEF5:7FFF)"
+      ]
+    },
+    "23": {
+      "signature_hash": "d2b20ede8a99",
+      "patterns": [
+        ": : [X] : . . ."
+      ],
+      "training_size": 31,
+      "sample_logs": [
+        "Dec 10 06:55:46 LabSZ sshd[24200]: Invalid user webmaster from 173.234.31.186",
+        "Dec 10 06:55:48 LabSZ sshd[24200]: Failed password for invalid user webmaster from 173.234.31.186 port 38926 ssh2"
+      ]
+    },
+    "24": {
+      "signature_hash": "8c850f6d2a86",
+      "patterns": [
+        ": : [X] : . . . : : [X]",
+        ": : [X] : : [X]",
+        ": : [X] : . . . [X]"
+      ],
+      "training_size": 33,
+      "sample_logs": [
+        "Dec 10 06:55:46 LabSZ sshd[24200]: input_userauth_request: invalid user webmaster [preauth]",
+        "Dec 10 06:55:48 LabSZ sshd[24200]: Connection closed by 173.234.31.186 [preauth]"
+      ]
+    },
+    "25": {
+      "signature_hash": "29b68a0b8365",
+      "patterns": [
+        ": : [X] : ( : ) : ; = = = = = = . . . =",
+        ": : [X] : ( : ) : ; = = = = = = . . .",
+        ": : [X] : ( : ) : ; = = = = = = - - - - . - - . . . ."
+      ],
+      "training_size": 26,
+      "sample_logs": [
+        "Dec 10 06:55:46 LabSZ sshd[24200]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=173.234.31.186",
+        "Dec 10 07:07:38 LabSZ sshd[24206]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=ec2-52-80-34-196.cn-north-1.compute.amazonaws.com.cn"
+      ]
+    },
+    "26": {
+      "signature_hash": "afcc0c8884cd",
+      "patterns": [
+        "- . . . - - : : - - : : . . . . [X] ... \"X\" : : : .",
+        "- . . . - - : : - - : : . . . . [X] . . . , . . . \"X\" : : : ."
+      ],
+      "training_size": 51,
+      "sample_logs": [
+        "nova-api.log.1.2017-05-16_13:53:08 2017-05-16 00:00:00.008 25746 INFO nova.osapi_compute.wsgi.server [req-38101a0b-2096-447d-96ea-a692162415ae 113d3a99c3da401fbd62cc2caa5b96d2 54fadb412c4e40cdbaed9335e4c35a9e - - -] 10.11.10.1 \"GET /v2/54fadb412c4e40cdbaed9335e4c35a9e/servers/detail HTTP/1.1\" status: 200 len: 1893 time: 0.2477829",
+        "nova-api.log.1.2017-05-16_13:53:08 2017-05-16 00:00:00.272 25746 INFO nova.osapi_compute.wsgi.server [req-9bc36dd9-91c5-4314-898a-47625eb93b09 113d3a99c3da401fbd62cc2caa5b96d2 54fadb412c4e40cdbaed9335e4c35a9e - - -] 10.11.10.1 \"GET /v2/54fadb412c4e40cdbaed9335e4c35a9e/servers/detail HTTP/1.1\" status: 200 len: 1893 time: 0.2577181"
+      ]
+    },
+    "27": {
+      "signature_hash": "ff14c432b3bc",
+      "patterns": [
+        "- . . . - - : : - - : : . . . [X] [X] ( )",
+        "- . . . - - : : - - : : . . . [X] [X] . .",
+        "- . . . - - : : - - : : . . . [X] [X] ( ) . ."
+      ],
+      "training_size": 25,
+      "sample_logs": [
+        "nova-compute.log.1.2017-05-16_13:55:31 2017-05-16 00:00:04.500 2931 INFO nova.compute.manager [req-3ea4052c-895d-4b64-9e2d-04d64c4d94ab - - - - -] [instance: b9000564-fe1a-409b-b8cc-1e88b294cd1d] VM Started (Lifecycle Event)",
+        "nova-compute.log.1.2017-05-16_13:55:31 2017-05-16 00:00:04.562 2931 INFO nova.compute.manager [req-3ea4052c-895d-4b64-9e2d-04d64c4d94ab - - - - -] [instance: b9000564-fe1a-409b-b8cc-1e88b294cd1d] VM Paused (Lifecycle Event)"
+      ]
+    },
+    "28": {
+      "signature_hash": "754a35ebaeea",
+      "patterns": [
+        "- . . - : : @ - / / / / - . . / / [X] : ( ) [X]",
+        "- . . . - - : : - - : : . . . . [X] : / / / / / /",
+        "- . . . - - : : - - : : . . . . [X] - - - - ( / / / / / / ) :"
+      ],
+      "training_size": 39,
+      "sample_logs": [
+        "nova-compute.log.1.2017-05-16_13:55:31 2017-05-16 00:00:05.185 2931 INFO nova.virt.libvirt.imagecache [req-addc1839-2ed5-4778-b57e-5854eb7b8b09 - - - - -] image 0673dd71-34c5-4fbb-86c4-40623fbe45b4 at (/var/lib/nova/instances/_base/a489c868f0c37da93b76227c91bb03908ac0e742): checking",
+        "nova-compute.log.1.2017-05-16_13:55:31 2017-05-16 00:00:05.367 2931 INFO nova.virt.libvirt.imagecache [req-addc1839-2ed5-4778-b57e-5854eb7b8b09 - - - - -] Active base files: /var/lib/nova/instances/_base/a489c868f0c37da93b76227c91bb03908ac0e742"
+      ]
+    },
+    "29": {
+      "signature_hash": "6d0960597c8f",
+      "patterns": [
+        "[X] . - . . . . : . . . . :",
+        "[X] . - . . . . : , , ,",
+        "[X] . - . . . . : , , , :"
+      ],
+      "training_size": 67,
+      "sample_logs": [
+        "[10.30 16:49:06] chrome.exe - proxy.cse.cuhk.edu.hk:5070 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS",
+        "[10.30 16:49:06] chrome.exe - proxy.cse.cuhk.edu.hk:5070 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS"
+      ]
+    },
+    "30": {
+      "signature_hash": "ad04ee5c0aae",
+      "patterns": [
+        "[X] . - . . . . : , , ( . ) ,",
+        "[X] . - . . . . : , ( . ) , ,",
+        "[X] . - . . . . : , ( . ) , ( . ) ,"
+      ],
+      "training_size": 33,
+      "sample_logs": [
+        "[10.30 16:49:07] chrome.exe - proxy.cse.cuhk.edu.hk:5070 close, 451 bytes sent, 18846 bytes (18.4 KB) received, lifetime <1 sec",
+        "[10.30 16:49:08] chrome.exe - proxy.cse.cuhk.edu.hk:5070 close, 445 bytes sent, 5174 bytes (5.05 KB) received, lifetime <1 sec"
+      ]
+    },
+    "31": {
+      "signature_hash": "20fdbee56c0e",
+      "patterns": [
+        "/ / : : . :",
+        "/ / : : . : ,",
+        "/ / : : . : : ,"
+      ],
+      "training_size": 40,
+      "sample_logs": [
+        "17/06/09 20:10:40 INFO spark.SecurityManager: Changing view acls to: yarn,curi",
+        "17/06/09 20:10:40 INFO spark.SecurityManager: Changing modify acls to: yarn,curi"
+      ]
+    },
+    "32": {
+      "signature_hash": "c25a73c9249a",
+      "patterns": [
+        "/ / : : . : ( . , . )",
+        "/ / : : . : . . ( )",
+        "/ / : : . : . . ( ) ."
+      ],
+      "training_size": 35,
+      "sample_logs": [
+        "17/06/09 20:10:45 INFO executor.Executor: Running task 0.0 in stage 0.0 (TID 0)",
+        "17/06/09 20:10:45 INFO executor.Executor: Running task 2.0 in stage 0.0 (TID 2)"
+      ]
+    },
+    "33": {
+      "signature_hash": "6ad668ee796a",
+      "patterns": [
+        "- . . : : / [X] : . . . ,"
+      ],
+      "training_size": 18,
+      "sample_logs": [
+        "- 1131566463 2005.11.09 cn142 Nov 9 12:01:03 cn142/cn142 ntpd[7467]: synchronized to 10.100.20.250, stratum 3",
+        "- 1131566463 2005.11.09 dn1021 Nov 9 12:01:03 dn1021/dn1021 ntpd[32563]: synchronized to 10.100.28.250, stratum 3"
+      ]
+    },
+    "34": {
+      "signature_hash": "f5ea005c6df0",
+      "patterns": [
+        "- - : : , [X]",
+        "- - : : , : . [X]"
+      ],
+      "training_size": 47,
+      "sample_logs": [
+        "2016-09-28 04:30:31, Info                  CBS    SQM: Failed to start standard sample upload. [HRESULT = 0x80004005 - E_FAIL]",
+        "2016-09-28 04:30:31, Info                  CBS    Expecting attribute name [HRESULT = 0x800f080d - CBS_E_MANIFEST_INVALID_ITEM]"
+      ]
+    },
+    "35": {
+      "signature_hash": "57e2b405ac0a",
+      "patterns": [
+        "- - : : , - [X] -",
+        "- - : : , - [X] - :"
+      ],
+      "training_size": 70,
+      "sample_logs": [
+        "2015-07-29 17:41:44,747 - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:FastLeaderElection@774] - Notification time out: 3200",
+        "2015-07-29 19:04:29,071 - WARN  [SendWorker:188978561024:QuorumCnxManager$SendWorker@688] - Send worker leaving thread"
+      ]
+    },
+    "36": {
+      "signature_hash": "30a73fb35912",
+      "patterns": [
+        "- - : : , - [X] - / . . . :"
+      ],
+      "training_size": 18,
+      "sample_logs": [
+        "2015-07-29 19:04:12,394 - INFO  [/10.10.34.11:3888:QuorumCnxManager$Listener@493] - Received connection request /10.10.34.11:45307",
+        "2015-07-29 19:13:24,370 - INFO  [/10.10.34.11:3888:QuorumCnxManager$Listener@493] - Received connection request /10.10.34.13:57707"
+      ]
+    }
+  },
+  "next_stable_id": 37,
+  "cluster_stats": {
+    "0": {
+      "size": 32,
+      "avg_intra_distance": 0.0024948278442025185,
+      "centroid_norm": 0.9987908005714417
+    },
+    "1": {
+      "size": 16,
+      "avg_intra_distance": 0.02247907780110836,
+      "centroid_norm": 0.9894068241119385
+    },
+    "2": {
+      "size": 144,
+      "avg_intra_distance": 0.0,
+      "centroid_norm": 1.0
+    },
+    "3": {
+      "size": 35,
+      "avg_intra_distance": 0.07434841245412827,
+      "centroid_norm": 0.9632112383842468
+    },
+    "4": {
+      "size": 30,
+      "avg_intra_distance": 0.041552502661943436,
+      "centroid_norm": 0.9797104001045227
+    },
+    "5": {
+      "size": 45,
+      "avg_intra_distance": 0.028525961562991142,
+      "centroid_norm": 0.9859552979469299
+    },
+    "6": {
+      "size": 75,
+      "avg_intra_distance": 0.14289361238479614,
+      "centroid_norm": 0.9268287420272827
+    },
+    "7": {
+      "size": 30,
+      "avg_intra_distance": 1.1646884345850594e-08,
+      "centroid_norm": 1.0
+    },
+    "8": {
+      "size": 29,
+      "avg_intra_distance": 0.0,
+      "centroid_norm": 0.9999999403953552
+    },
+    "9": {
+      "size": 41,
+      "avg_intra_distance": 0.0,
+      "centroid_norm": 0.9999999403953552
+    },
+    "10": {
+      "size": 18,
+      "avg_intra_distance": 0.018766207620501518,
+      "centroid_norm": 0.9910985231399536
+    },
+    "11": {
+      "size": 88,
+      "avg_intra_distance": 5.979149619861346e-08,
+      "centroid_norm": 1.0
+    },
+    "12": {
+      "size": 84,
+      "avg_intra_distance": 0.028724029660224915,
+      "centroid_norm": 0.9857066869735718
+    },
+    "13": {
+      "size": 20,
+      "avg_intra_distance": 0.0,
+      "centroid_norm": 0.9999998807907104
+    },
+    "14": {
+      "size": 26,
+      "avg_intra_distance": 0.0,
+      "centroid_norm": 1.0
+    },
+    "15": {
+      "size": 24,
+      "avg_intra_distance": 0.0,
+      "centroid_norm": 1.0
+    },
+    "16": {
+      "size": 24,
+      "avg_intra_distance": 1.4793181435379665e-07,
+      "centroid_norm": 1.0
+    },
+    "17": {
+      "size": 25,
+      "avg_intra_distance": 0.0010738904820755124,
+      "centroid_norm": 0.9994843602180481
+    },
+    "18": {
+      "size": 35,
+      "avg_intra_distance": 0.015949197113513947,
+      "centroid_norm": 0.9922230243682861
+    },
+    "19": {
+      "size": 15,
+      "avg_intra_distance": 0.0030659018084406853,
+      "centroid_norm": 0.9985681176185608
+    },
+    "20": {
+      "size": 51,
+      "avg_intra_distance": 0.07836614549160004,
+      "centroid_norm": 0.9608175158500671
+    },
+    "21": {
+      "size": 16,
+      "avg_intra_distance": 0.011184962466359138,
+      "centroid_norm": 0.9947431683540344
+    },
+    "22": {
+      "size": 38,
+      "avg_intra_distance": 0.04501567408442497,
+      "centroid_norm": 0.9778388738632202
+    },
+    "23": {
+      "size": 31,
+      "avg_intra_distance": 2.153458211751058e-08,
+      "centroid_norm": 1.0
+    },
+    "24": {
+      "size": 33,
+      "avg_intra_distance": 0.017937086522579193,
+      "centroid_norm": 0.9912651777267456
+    },
+    "25": {
+      "size": 26,
+      "avg_intra_distance": 0.004429586231708527,
+      "centroid_norm": 0.9978680610656738
+    },
+    "26": {
+      "size": 51,
+      "avg_intra_distance": 0.002186511643230915,
+      "centroid_norm": 0.9989274740219116
+    },
+    "27": {
+      "size": 25,
+      "avg_intra_distance": 0.030047638341784477,
+      "centroid_norm": 0.9854715466499329
+    },
+    "28": {
+      "size": 39,
+      "avg_intra_distance": 0.03159603476524353,
+      "centroid_norm": 0.9844866991043091
+    },
+    "29": {
+      "size": 67,
+      "avg_intra_distance": 0.00827376451343298,
+      "centroid_norm": 0.995916485786438
+    },
+    "30": {
+      "size": 33,
+      "avg_intra_distance": 0.012537126429378986,
+      "centroid_norm": 0.9939027428627014
+    },
+    "31": {
+      "size": 40,
+      "avg_intra_distance": 0.0650053322315216,
+      "centroid_norm": 0.9677911996841431
+    },
+    "32": {
+      "size": 35,
+      "avg_intra_distance": 0.1116814911365509,
+      "centroid_norm": 0.9441977739334106
+    },
+    "33": {
+      "size": 18,
+      "avg_intra_distance": 0.0,
+      "centroid_norm": 1.0
+    },
+    "34": {
+      "size": 47,
+      "avg_intra_distance": 0.0014929308090358973,
+      "centroid_norm": 0.9992691874504089
+    },
+    "35": {
+      "size": 70,
+      "avg_intra_distance": 0.00035730720264837146,
+      "centroid_norm": 0.9998239278793335
+    },
+    "36": {
+      "size": 18,
+      "avg_intra_distance": 0.0,
+      "centroid_norm": 1.0
+    }
+  },
+  "distance_thresholds": {
+    "primary_distance_threshold": 0.25,
+    "secondary_distance_threshold": 0.4,
+    "knn_k": 5,
+    "knn_confidence_threshold": 0.6
+  }
+}
