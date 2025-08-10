@@ -46,6 +46,11 @@ This project implements a complete log processing pipeline with three main compo
 │   ├── centroids.pkl             # Distance-based cluster centroids
 │   ├── sample_embeddings.pkl     # KNN verification samples
 │   └── cluster_stats.json        # Training statistics
+├── mcp-neo4j/                    # Neo4j MCP Memory Server
+│   ├── src/mcp_neo4j_memory/     # Server implementation
+│   ├── docker-compose.yml        # Docker services configuration
+│   ├── Dockerfile                # Container build configuration
+│   └── pyproject.toml            # Python package configuration
 └── archive/                      # Reference implementations
     ├── masking.py                # Original preprocessing logic
     ├── filter.py                 # Field extraction reference
@@ -212,12 +217,93 @@ python src/log_filter_utils.py
 python src/log_mcp.py
 ```
 
+## 🧠 Neo4j MCP Memory Server
+
+In addition to the log analysis system, this project includes a **Neo4j MCP Memory Server** in the `mcp-neo4j/` directory for persistent knowledge graph storage and retrieval.
+
+### Overview
+The Neo4j MCP Memory Server provides a Model Context Protocol interface to a Neo4j graph database, enabling:
+- **Knowledge Graph Management**: Store and manage entities, relations, and observations
+- **Persistent Memory**: Knowledge persists across sessions in Neo4j database  
+- **MCP Integration**: Standard MCP tools for seamless AI agent integration
+- **Graph Search**: Full-text search and targeted queries across the knowledge graph
+
+### Quick Setup
+```bash
+# Navigate to Neo4j MCP directory
+cd mcp-neo4j/
+
+# Start Neo4j database and MCP server
+docker compose up -d
+
+# Verify server is running
+curl http://localhost:8000/api/mcp/
+```
+
+**Services:**
+- **Neo4j Database**: http://localhost:7474 (Browser UI)
+- **MCP Server**: http://localhost:8000/api/mcp/ (API endpoint)
+
+### Available MCP Tools
+
+#### 📖 **Read Operations**
+- **`read_graph()`** - Read the entire knowledge graph
+- **`search_memories(query)`** - Search for memories using search terms
+- **`find_memories_by_name(names)`** - Find specific memories by entity name
+
+#### ✏️ **Create Operations**
+- **`create_entities(entities)`** - Create new entities with observations
+- **`create_relations(relations)`** - Create relations between entities
+- **`add_observations(observations)`** - Add new observations to existing entities
+
+#### 🗑️ **Delete Operations**
+- **`delete_entities(entityNames)`** - Delete entities and their relations
+- **`delete_observations(deletions)`** - Delete specific observations
+- **`delete_relations(relations)`** - Delete specific relations
+
+### Usage Examples
+
+```bash
+# Initialize connection and read empty graph
+curl -X POST http://localhost:8000/api/mcp/ \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "read_graph", "arguments": {}}}'
+
+# Create entities
+curl -X POST http://localhost:8000/api/mcp/ \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "create_entities", "arguments": {"entities": [{"name": "user123", "type": "User", "observations": ["Active user", "Prefers mobile app"]}]}}}'
+```
+
+### Configuration
+The server configuration is managed through `docker-compose.yml`:
+
+```yaml
+Environment Variables:
+- NEO4J_URL=bolt://neo4j:7687          # Neo4j connection
+- NEO4J_USERNAME=neo4j                 # Database username  
+- NEO4J_PASSWORD=password              # Database password
+- NEO4J_TRANSPORT=http                 # MCP transport (http/stdio/sse)
+- NEO4J_MCP_SERVER_HOST=0.0.0.0       # Server host
+- NEO4J_MCP_SERVER_PORT=8000          # Server port
+- NEO4J_MCP_SERVER_PATH=/api/mcp/     # API path
+```
+
+### Integration with Log Analysis
+The Neo4j memory server can complement the log analysis system by:
+- **Storing extracted insights** from log clusters as persistent knowledge
+- **Building relationships** between log patterns, systems, and incidents
+- **Maintaining historical context** across multiple log analysis sessions
+- **Enabling semantic queries** on accumulated log intelligence
+
 ## 🔮 Future Enhancements
 
-- **Agentic System Owner**: LangGraph-based intelligent log monitoring
-- **Real-time Processing**: Streaming log analysis capabilities  
-- **Advanced Visualization**: Interactive cluster exploration tools
-- **Custom Pattern Detection**: User-defined log pattern recognition
+- **Agentic System Owner**: LangGraph-based intelligent log monitoring with Neo4j memory integration
+- **Real-time Processing**: Streaming log analysis capabilities with live knowledge graph updates
+- **Advanced Visualization**: Interactive cluster exploration tools connected to persistent memory
+- **Custom Pattern Detection**: User-defined log pattern recognition with knowledge graph learning
 
 ## 📄 License
 
