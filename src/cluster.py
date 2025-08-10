@@ -257,7 +257,7 @@ def perform_distance_based_clustering(stable_registry, raw_logs, preprocessed_lo
     return results_df, assignment_stats
 
 def save_results_to_mcp(results_df, output_path='data/mcp/data.log'):
-    """Save clustering results to CSV format in MCP output file"""
+    """Save clustering results to CSV format in MCP output file with patterns"""
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
@@ -270,14 +270,27 @@ def save_results_to_mcp(results_df, output_path='data/mcp/data.log'):
     with open(output_path, 'a', encoding='utf-8') as f:
         # Write CSV headers if file is empty or doesn't exist
         if write_headers:
-            f.write("cluster,raw_log\n")
+            f.write("cluster,raw_log,pattern\n")
         
         # Write CSV rows
         for _, row in results_df.iterrows():
             # Escape quotes in raw_log by doubling them (CSV standard)
             escaped_log = row['raw_log'].replace('"', '""')
-            # Write in format: cluster,"raw_log"
-            f.write(f'{int(row["stable_cluster_id"])},"{escaped_log}"\n')
+            
+            # Get pattern by preprocessing the raw log directly
+            cluster_id = int(row['stable_cluster_id'])
+            
+            if cluster_id == -1:
+                pattern = "outlier"
+            else:
+                # Preprocess the raw log to get its pattern
+                pattern = preprocess_log(row['raw_log'])
+            
+            # Escape quotes in pattern by doubling them (CSV standard)
+            escaped_pattern = pattern.replace('"', '""')
+            
+            # Write in format: cluster,"raw_log","pattern"
+            f.write(f'{cluster_id},"{escaped_log}","{escaped_pattern}"\n')
     
     print(f"Appended {len(results_df)} clustered log entries to {output_path}")
     
