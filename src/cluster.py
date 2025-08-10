@@ -16,102 +16,14 @@ import json
 import pickle
 import pandas as pd
 import numpy as np
-import re
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
 import torch
 from datetime import datetime
 
 from stable_cluster_registry import StableClusterRegistry
+from log_preprocessing import preprocess_log
 
-def preprocess_log(log):
-    """Extract and process symbols from log entries (from archive inference)"""
-    symbols = ''.join(re.findall(r'[^\w\s]', log))
-    
-    result = []
-    stack = []
-    current_segment = ""
-    i = 0
-    
-    while i < len(symbols):
-        symbol = symbols[i]
-        
-        # Handle quotes
-        if symbol == '"':
-            if stack and stack[-1] == '"':
-                stack.pop()
-                if not stack:
-                    result.append('""')
-                current_segment = ""
-            else:
-                stack.append(symbol)
-                if current_segment and not stack[0:-1]:
-                    result.extend(process_non_enclosing(current_segment))
-                current_segment = ""
-            i += 1
-        
-        # Handle other enclosing symbols ({, [, <)
-        elif symbol in '{[<':
-            stack.append(symbol)
-            if current_segment and not stack[0:-1]:
-                result.extend(process_non_enclosing(current_segment))
-            current_segment = ""
-            i += 1
-        
-        # Handle closing symbols (}, ], >)
-        elif symbol in '}]>':
-            if stack:
-                opening = stack[-1]
-                if (opening == '{' and symbol == '}') or \
-                   (opening == '[' and symbol == ']') or \
-                   (opening == '<' and symbol == '>'):
-                    stack.pop()
-                    if not stack:
-                        result.append(f"{opening}{symbol}")
-                    current_segment = ""
-            i += 1
-        
-        # Collect non-enclosing symbols
-        else:
-            current_segment += symbol
-            i += 1
-    
-    # Process any remaining non-enclosing symbols
-    if current_segment and not stack:
-        result.extend(process_non_enclosing(current_segment))
-    
-    return ' '.join(result)
-
-def process_non_enclosing(segment):
-    """Process a segment of non-enclosing symbols (from archive inference)"""
-    if not segment:
-        return []
-    
-    # Handle IP address (three periods -> ...)
-    if re.match(r'^\.\.\.$', segment):
-        return ['...']
-    
-    # Split other symbols into individual tokens
-    result = []
-    current = segment[0]
-    count = 1
-    for symbol in segment[1:]:
-        if symbol == current:
-            count += 1
-        else:
-            if count > 1:
-                result.extend([current] * count)
-            else:
-                result.append(current)
-            current = symbol
-            count = 1
-    # Append the last group
-    if count > 1:
-        result.extend([current] * count)
-    else:
-        result.append(current)
-    
-    return result
 
 def preprocess_logs_batch(raw_logs):
     """Preprocess a batch of raw log lines"""
