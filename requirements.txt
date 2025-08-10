@@ -4,3 +4,4 @@ sentence-transformers>=2.2.0
 hdbscan>=0.8.29
 torch>=1.11.0
 scikit-learn>=1.1.0
+mcp[cli]>=0.4.0
