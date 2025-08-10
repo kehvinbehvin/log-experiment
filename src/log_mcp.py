@@ -606,9 +606,8 @@ def log_filter(
         # Determine if this is the end
         is_end = end_idx >= total_matches
         
-        # Extract fields for each log entry
-        extracted_data = []
-        extraction_errors = 0
+        # Extract and format fields for each log entry
+        formatted_lines = []
         
         for log_entry in paginated_logs:
             try:
@@ -623,37 +622,32 @@ def log_filter(
                     all_fields, field_indices
                 )
                 
-                extracted_data.append({
-                    'raw_log': log_entry['raw_log'],
-                    'selected_fields': selected_fields,
-                    'field_indices': field_indices
-                })
+                # Format fields as tab-separated line (surgical precision)
+                if selected_fields:
+                    formatted_lines.append('\t'.join(selected_fields))
+                else:
+                    formatted_lines.append('')  # Empty line for failed extractions
                 
             except Exception as e:
-                # Track extraction errors but continue processing
-                extraction_errors += 1
-                # Add empty entry to maintain result count consistency
-                extracted_data.append({
-                    'raw_log': log_entry['raw_log'],
-                    'selected_fields': [],
-                    'field_indices': field_indices,
-                    'extraction_error': str(e)
-                })
+                # Add empty line for extraction errors (fail silently for surgical precision)
+                formatted_lines.append('')
+        
+        # Join all formatted lines with newlines
+        extracted_text = '\n'.join(formatted_lines)
         
         return {
             "success": True,
             "data": {
-                "extracted_data": extracted_data,
+                "text": extracted_text,
                 "metadata": {
                     "current_offset": offset,
-                    "returned_count": len(extracted_data),
+                    "returned_count": len(formatted_lines),
                     "requested_limit": limit,
                     "isEnd": is_end,
                     "total_matches": total_matches,
                     "cluster_id": cluster_id,
                     "pattern_filter": pattern,
-                    "field_indices": field_indices,
-                    "extraction_errors": extraction_errors if extraction_errors > 0 else None
+                    "field_indices": field_indices
                 }
             }
         }
@@ -748,10 +742,10 @@ if __name__ == "__main__":
             print(f"   Pattern filter: '{metadata['pattern_filter']}'")
             print(f"   Field indices: {metadata['field_indices']}")
             
-            if data["extracted_data"]:
-                first_entry = data["extracted_data"][0]
-                print(f"   Selected fields: {first_entry['selected_fields']}")
-                print(f"   Field indices used: {first_entry['field_indices']}")
+            if data["text"]:
+                first_line = data["text"].split('\n')[0]
+                print(f"   First extracted line: {first_line}")
+                print(f"   Total extracted text length: {len(data['text'])} chars")
         else:
             print(f"❌ Filter failed: {filter_result.get('error', 'Unknown error')}")
             print(f"   Message: {filter_result.get('message', 'No details available')}")
