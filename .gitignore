@@ -1,4 +1,5 @@
 /venv/
 CLAUDE.md
 /archive/
+.env
 **/__pycache__/

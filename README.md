@@ -298,6 +298,9 @@ The Neo4j memory server can complement the log analysis system by:
 - **Maintaining historical context** across multiple log analysis sessions
 - **Enabling semantic queries** on accumulated log intelligence
 
+# Reset NEO4j
+- MATCH (n) DETACH DELETE n;
+
 ## 🔮 Future Enhancements
 
 - **Agentic System Owner**: LangGraph-based intelligent log monitoring with Neo4j memory integration
