@@ -3,3 +3,4 @@ CLAUDE.md
 /archive/
 .env
 **/__pycache__/
+**/.claude/
