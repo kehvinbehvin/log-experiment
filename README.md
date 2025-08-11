@@ -22,7 +22,7 @@ This project implements a complete log processing pipeline with three main compo
 - Provides Model Context Protocol tools for log analysis
 - Offers three specialized tools: `log_schema`, `log_query`, and `log_filter`
 - Enables surgical data extraction with unified field indexing
-- Supports shallow log reconstruction for privacy-preserving analysis
+- Supports shallow log reconstruction without having to deal with deeply nested data
 
 ## 📁 Directory Structure
 
@@ -54,7 +54,7 @@ This project implements a complete log processing pipeline with three main compo
 └── archive/                      # Reference implementations
     ├── masking.py                # Original preprocessing logic
     ├── filter.py                 # Field extraction reference
-    └── extract_shallow.py        # Privacy-preserving extraction
+    └── extract_shallow.py        # Shallow extraction
 ```
 
 ## 🚀 Quick Start
@@ -115,7 +115,7 @@ Queries logs with filtering and optional shallow extraction:
 # Get raw logs from cluster 3
 log_query(cluster_id=3, pattern="GET", limit=10, shallow=false)
 
-# Get privacy-preserving shallow logs
+# Get shallow logs
 log_query(cluster_id=3, pattern="error", limit=5, shallow=true)
 ```
 
@@ -157,11 +157,11 @@ Returns tab-separated, newline-delimited text for easy processing.
 - Fallback: Outlier classification for unmatched logs
 - No retraining required for new log classification
 
-### **Privacy-Preserving Analysis**
-- Shallow extraction reconstructs logs with masked sensitive content
-- Preserves structural information while hiding private data
+### **Quick overview Analysis**
+- Shallow extraction reconstructs logs with masked deeply nested content
+- Preserves structural information while hiding nested data
 - Configurable masking rules for different content types
-- Maintains log utility for analysis while protecting privacy
+- Maintains log utility for analysis while not overloading context
 
 ## 📊 Example Workflow
 
