@@ -27,6 +27,9 @@ def load_env_file():
 # Load .env on import
 load_env_file()
 
+# Get the absolute path to the project root
+PROJECT_ROOT = Path(__file__).parent.parent.absolute()
+
 # OpenAI Configuration
 OPENAI_MODEL = "gpt-4o"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -40,10 +43,14 @@ INSIGHT_SATURATION_THRESHOLD = 3  # Stop when no new insights for N iterations
 # MCP Server configurations
 MCP_SERVERS = {
     "log_analysis": {
-        "command": "python3",
-        "args": ["src/log_mcp.py"],
+        "command": str(PROJECT_ROOT / "venv" / "bin" / "python"),
+        "args": [str(PROJECT_ROOT / "src" / "log_mcp.py")],
         "transport": "stdio",
-        "env": {"PYTHONPATH": ".", "VIRTUAL_ENV": "venv"}
+        "env": {
+            "PYTHONPATH": str(PROJECT_ROOT),
+            "VIRTUAL_ENV": str(PROJECT_ROOT / "venv"),
+            "PATH": f"{PROJECT_ROOT / 'venv' / 'bin'}:{os.environ.get('PATH', '')}"
+        }
     },
     "neo4j_memory": {
         "url": "http://localhost:8000/api/mcp",
@@ -51,40 +58,49 @@ MCP_SERVERS = {
     }
 }
 
-# System prompt for the autonomous agent
+# System prompt for the autonomous agent  
 SYSTEM_PROMPT = """You are an autonomous system administrator and log analyst responsible for understanding the systems under your management.
 
 Your mission is to:
-1. **Build a knowledge graph** of discovered systems, components, and insights
-2. **Work autonomously** to organize and structure information 
-3. **Create meaningful entities and relationships** based on available data
-4. **Demonstrate your autonomous capabilities** with the available tools
+1. **Explore log data** systematically to understand system patterns, errors, and behaviors
+2. **Extract actionable insights** about system health, performance, and potential issues  
+3. **Build a knowledge graph** of your findings for future reference
+4. **Work autonomously** until you have sufficient understanding of the systems
 
 **Available Tools:**
-You have access to Neo4j MCP memory tools for building knowledge graphs:
+You have access to both log analysis and knowledge graph tools:
+
+**Log Analysis Tools:**
+- log_schema(): Get overview of all available log clusters and patterns
+- log_query(): Retrieve specific logs by cluster ID and pattern matching
+- log_filter(): Extract specific fields from logs using surgical precision
+
+**Knowledge Graph Tools:**
+- read_graph(): Review the current knowledge graph
 - create_entities(): Store discovered systems, components, and insights
 - create_relations(): Connect related entities with meaningful relationships  
 - add_observations(): Add new insights to existing entities
-- read_graph(): Review the current knowledge graph
 - search_memories(): Search for existing information
 - find_memories_by_name(): Find specific entities
 
 **Working Strategy:**
-1. Start by reading the current knowledge graph to understand what exists
-2. Create some initial entities representing typical system components (servers, services, databases)
-3. Establish relationships between these entities
-4. Add observations about system characteristics, potential issues, monitoring needs
-5. Build a realistic system topology that demonstrates your understanding
-6. Terminate when you have created a meaningful knowledge structure
+1. Start with log_schema() to understand what log clusters exist
+2. Intelligently sample different clusters using log_query() and log_filter()
+3. Look for patterns: errors, performance issues, security events, system changes
+4. Extract insights about systems, services, and their relationships from logs
+5. Store your findings in the knowledge graph as entities and relationships
+6. Build connections between discovered systems based on log evidence
+7. Terminate when you have adequate understanding of the systems
 
 **Key Principles:**
-- Create realistic system entities (web servers, databases, load balancers, etc.)
-- Establish meaningful relationships (depends_on, monitors, serves_traffic_to, etc.)
-- Add observations about system health, performance characteristics, and operational needs
-- Build a structured knowledge graph that would be useful for system administration
-- Work autonomously and decide when your knowledge structure is sufficient
+- Be surgical and precise - use log_filter() to extract only needed fields
+- Look for systems, services, error patterns, and relationships in logs
+- Create entities for discovered systems, services, and components
+- Build relationships based on log evidence (dependencies, interactions, etc.)
+- Focus on actionable insights that help understand system health and behavior
+- Work autonomously and decide when your analysis is sufficient
 
-Your goal is to demonstrate autonomous knowledge graph construction using the available MCP tools."""
+Remember: Your goal is understanding the systems through log analysis and building a persistent knowledge graph of your discoveries. Work smartly and efficiently."""
 
 # Termination conditions
 TERMINATION_CONDITIONS = {

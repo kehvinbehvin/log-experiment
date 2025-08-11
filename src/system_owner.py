@@ -78,8 +78,26 @@ class AutonomousLogAnalyst:
             except Exception as e:
                 logger.warning(f"Neo4j MCP server failed to connect: {e}")
             
-            # Test log analysis server (stdio) - skip for now due to complexity
-            logger.info("Skipping stdio log_mcp server for initial testing")
+            # Test log analysis server (stdio)
+            try:
+                log_config = MCP_SERVERS["log_analysis"] 
+                logger.info("Attempting to connect to log analysis MCP server...")
+                
+                # Create a separate client for log analysis
+                log_test_client = MultiServerMCPClient({"log_analysis": log_config})
+                log_tools = await log_test_client.get_tools()
+                working_servers["log_analysis"] = log_config
+                logger.info(f"Log analysis MCP server connected successfully with {len(log_tools)} tools")
+                
+                # Clean up test client
+                try:
+                    await log_test_client.cleanup()
+                except:
+                    pass  # Ignore cleanup errors for test client
+                    
+            except Exception as e:
+                logger.warning(f"Log analysis MCP server failed to connect: {e}")
+                logger.info("Continuing with Neo4j memory server only")
             
             if not working_servers:
                 logger.error("No MCP servers available")
@@ -200,18 +218,30 @@ Remember to work efficiently - focus on insights, not exhaustive log reading."""
                     if response.get("messages"):
                         # Get the latest assistant message for the next iteration
                         latest_message = response["messages"][-1]
-                        # Handle both dict and AIMessage objects
-                        message_role = getattr(latest_message, 'role', latest_message.get("role", ""))
-                        if message_role == "assistant":
-                            initial_message = {
-                                "messages": response["messages"] + [{
-                                    "role": "user",
-                                    "content": "Continue your analysis. Focus on discovering new insights or determining if you have sufficient understanding to complete your mission."
-                                }]
-                            }
+                        # Handle both dict and AIMessage objects safely
+                        try:
+                            if hasattr(latest_message, 'role'):
+                                message_role = latest_message.role
+                            elif isinstance(latest_message, dict):
+                                message_role = latest_message.get("role", "")
+                            else:
+                                message_role = ""
+                                
+                            if message_role == "assistant":
+                                initial_message = {
+                                    "messages": response["messages"] + [{
+                                        "role": "user",
+                                        "content": "Continue your analysis. Focus on discovering new insights or determining if you have sufficient understanding to complete your mission."
+                                    }]
+                                }
+                        except AttributeError as attr_error:
+                            logger.warning(f"Error accessing message role: {attr_error}")
+                            # Continue with current initial_message if we can't determine the role
                     
                 except Exception as e:
+                    import traceback
                     logger.error(f"Error in iteration {self.agent_state['iteration_count']}: {e}")
+                    logger.error(f"Full traceback: {traceback.format_exc()}")
                     self.agent_state["consecutive_errors"] = self.agent_state.get("consecutive_errors", 0) + 1
                     
                     if self.agent_state["consecutive_errors"] >= 3:
@@ -314,11 +344,33 @@ Remember to work efficiently - focus on insights, not exhaustive log reading."""
                 # Check for tool calls in AI messages
                 if hasattr(message, 'tool_calls') and message.tool_calls:
                     for tool_call in message.tool_calls:
+                        # Handle tool_call object attributes safely
+                        if hasattr(tool_call, 'name'):
+                            tool_name = tool_call.name
+                        elif isinstance(tool_call, dict):
+                            tool_name = tool_call.get("name", "unknown")
+                        else:
+                            tool_name = "unknown"
+                        
+                        if hasattr(tool_call, 'id'):
+                            tool_id = tool_call.id
+                        elif isinstance(tool_call, dict):
+                            tool_id = tool_call.get("id", "unknown")
+                        else:
+                            tool_id = "unknown"
+                        
+                        if hasattr(tool_call, 'args'):
+                            arguments = tool_call.args
+                        elif isinstance(tool_call, dict):
+                            arguments = tool_call.get("args", {})
+                        else:
+                            arguments = {}
+                        
                         tool_record = {
                             "timestamp": datetime.now().isoformat(),
-                            "tool_name": tool_call.get("name", "unknown"),
-                            "tool_id": tool_call.get("id", "unknown"),
-                            "arguments": tool_call.get("args", {}),
+                            "tool_name": tool_name,
+                            "tool_id": tool_id,
+                            "arguments": arguments,
                             "type": "tool_call"
                         }
                         tool_usage_records.append(tool_record)
@@ -363,6 +415,27 @@ Remember to work efficiently - focus on insights, not exhaustive log reading."""
                             logger.info(f"🔧 TOOL CALL: {tool_record['tool_name']}")
                             logger.info(f"   Tool ID: {tool_record['tool_id']}")
                             logger.info(f"   Arguments: {json.dumps(tool_record['arguments'], indent=2)}")
+                        else:
+                            # Handle non-dict tool_call objects
+                            try:
+                                tool_name = getattr(tool_call, 'name', 'unknown')
+                                tool_id = getattr(tool_call, 'id', 'unknown') 
+                                arguments = getattr(tool_call, 'args', {})
+                                
+                                tool_record = {
+                                    "timestamp": datetime.now().isoformat(),
+                                    "tool_name": tool_name,
+                                    "tool_id": tool_id,
+                                    "arguments": arguments,
+                                    "type": "tool_call"
+                                }
+                                tool_usage_records.append(tool_record)
+                                
+                                logger.info(f"🔧 TOOL CALL: {tool_record['tool_name']}")
+                                logger.info(f"   Tool ID: {tool_record['tool_id']}")
+                                logger.info(f"   Arguments: {json.dumps(tool_record['arguments'], indent=2)}")
+                            except Exception as tool_error:
+                                logger.warning(f"Error processing tool_call object: {tool_error}")
         
         except Exception as e:
             logger.warning(f"Error extracting tool usage: {e}")

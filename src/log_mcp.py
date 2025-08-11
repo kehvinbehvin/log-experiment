@@ -20,7 +20,36 @@ from mcp.server.fastmcp import FastMCP
 from log_filter_utils import extract_fields, select_fields_by_unified_indices
 
 # Initialize MCP server
-mcp = FastMCP("LogClusterServer")
+mcp = FastMCP(
+    name="LogClusterServer",
+    instructions="""
+        This server is a powerful log query engine. This tool is a surgical knife for your log data,
+        optimising for precision of data over quantity of data.
+
+        Key terminology: Pattern Signature and Clusters
+
+        A Pattern signature is a unique way of grouping logs that have the same structure together.
+        A Cluster is a family of pattern signatures that have very minor deviations in structure which may indicate a domain relationship. 
+
+        A Pattern signature is extracted from an unstructed log by firstly removing all its alphanumeric content, leaving only its symbols.
+        Secondly, identifying enclosing symbols like <>[]{} and removing an nested symbols, leaving only the root level enclosing symbols and
+        replacing the removed nested symbols with an X to denote nested content.
+
+        Examples:
+        [Sun Dec 04 04:47:44 2005] [notice] workerEnv.init() ok /etc/httpd/conf/workers2.properties
+        [X] [X] . ( ) / / / /  
+
+        2568643 node-70 action start 1074119817 1 clusterAddMember  (command 1902)
+        - ()
+        
+        Jun 14 15:16:01 combo sshd(pam_unix)[19939]: authentication failure; logname= uid=0 euid=0 tty=NODEVssh ruser= rhost=218.188.2.4
+        : : ( ) [X] : ; = = = = = = . . .
+
+        Call log_schema() to gain an overview of all your log clusters and samples.
+        Call log_filter to query only specific regions of a family of logs according to their cluster id or pattern-signature
+        Call log_query to query raw full logs
+    """,
+)
 
 # Global variable to cache registry data
 _registry_cache = None
@@ -242,7 +271,7 @@ def format_cluster_schema(registry_data: Dict[str, Any]) -> Dict[str, Any]:
         sample_logs = cluster_info.get("sample_logs", [])
         
         clusters[str(cluster_id)] = {
-            "patterns": patterns,
+            "pattern_signatures": patterns,
             "training_size": training_size,
             "sample_preview": sample_logs[0][:150] + "..." if sample_logs and len(sample_logs[0]) > 150 else (sample_logs[0] if sample_logs else "No sample available")
         }
@@ -315,17 +344,17 @@ def log_schema() -> Dict[str, Any]:
 @mcp.tool()
 def log_query(
     log_cluster_id: int,
-    pattern: str,
+    pattern_signature: str,
     limit: int,
     offset: int = 0,
     shallow: bool = False
 ) -> Dict[str, Any]:
     """
-    Query log entries by cluster ID and pattern with pagination support.
+    Query log entries by cluster ID and pattern_signature with pagination support.
     
     Args:
         log_cluster_id: Cluster ID to filter by (exact match)
-        pattern: Pattern substring to filter by (partial match)
+        pattern_signature: Use the exact patterns related to the cluster_id from log_schema()
         limit: Maximum number of results to return
         offset: Number of results to skip (default: 0)
         shallow: Return shallow-formatted logs instead of raw logs (default: False)
@@ -342,7 +371,7 @@ def log_query(
                 isEnd: Boolean indicating if no more results available
                 total_matches: Total number of matching logs found
                 cluster_id: Queried cluster ID
-                pattern_filter: Applied pattern filter
+                pattern_signature: Queried pattern signature
             }
         }
         - error/message: Error information if unsuccessful
@@ -398,7 +427,7 @@ def log_query(
                     
                     # Apply filters
                     if (row_cluster_id == log_cluster_id and 
-                        pattern.lower() in row_pattern.lower()):
+                        pattern_signature.lower() in row_pattern.lower()):
                         matching_logs.append({
                             'cluster': row_cluster_id,
                             'raw_log': row_raw_log,
@@ -451,7 +480,7 @@ def log_query(
                     "isEnd": is_end,
                     "total_matches": total_matches,
                     "cluster_id": log_cluster_id,
-                    "pattern_filter": pattern,
+                    "pattern_filter": pattern_signature,
                     "shallow_mode": shallow
                 }
             }
@@ -474,21 +503,20 @@ def log_query(
 @mcp.tool()
 def log_filter(
     cluster_id: int,
-    pattern: str,
+    pattern_signature: str,
     field_indices: List[int] = [],
     limit: int = 100,
     offset: int = 0
 ) -> Dict[str, Any]:
     """
-    Extract specific fields from log entries by cluster ID and pattern with field-level selection.
-    
-    This tool enables targeted extraction of \"columns\" of data from structured logs by leveraging
-    pattern-based field extraction. LLMs can specify exactly which fields they want using indices
-    for whitespace-separated and X-masked content.
+    Extract specific fields from log entries by its cluster ID and pattern_signature.
+
+    This tool enables targeted extraction of "columns" of data from structured logs. 
+    LLMs can specify exactly which fields they want using indices for whitespace-separated and X-masked content.
     
     Args:
         cluster_id: Cluster ID to filter by (exact match)
-        pattern: Pattern substring to filter by (partial match)  
+        pattern_signature: Use the exact patterns related to the cluster_id from log_schema()
         field_indices: List of field indices to select from unified field list (default: [])
         limit: Maximum number of results to return (default: 100, max: 1000)
         offset: Number of results to skip (default: 0)
@@ -509,7 +537,7 @@ def log_filter(
                 isEnd: Boolean indicating if no more results available,
                 total_matches: Total number of matching logs found,
                 cluster_id: Queried cluster ID,
-                pattern_filter: Applied pattern filter,
+                pattern_signature: Queried pattern signature,
                 whitespace_indices: Applied whitespace indices,
                 X_indices: Applied X-masked indices
             }
@@ -518,10 +546,10 @@ def log_filter(
         
     Example Usage:
         # Get IP addresses (whitespace field 0) and timestamps (X-masked field 0) from web logs
-        log_filter(cluster_id=3, pattern=\". - - [X] \\\"X\\\"\", whitespace_index=[0], X_index=[0], limit=10)
+        log_filter(cluster_id=3, pattern_signature=". - - [X] \"X\"", whitespace_index=[0], X_index=[0], limit=10)
         
         # Extract multiple fields: IPs, response codes, and HTTP methods  
-        log_filter(cluster_id=3, pattern=\"web\", whitespace_index=[0, 3], X_index=[1], limit=20)
+        log_filter(cluster_id=3, pattern_signature="web", whitespace_index=[0, 3], X_index=[1], limit=20)
     """
     
     try:
@@ -582,7 +610,7 @@ def log_filter(
                     
                     # Apply filters
                     if (row_cluster_id == cluster_id and 
-                        pattern.lower() in row_pattern.lower()):
+                        pattern_signature.lower() in row_pattern.lower()):
                         matching_logs.append({
                             'cluster': row_cluster_id,
                             'raw_log': row_raw_log,
@@ -646,7 +674,7 @@ def log_filter(
                     "isEnd": is_end,
                     "total_matches": total_matches,
                     "cluster_id": cluster_id,
-                    "pattern_filter": pattern,
+                    "pattern_filter": pattern_signature,
                     "field_indices": field_indices
                 }
             }
@@ -668,94 +696,102 @@ def log_filter(
 
 # Server entry point
 if __name__ == "__main__":
-    # Test the server functionality when run directly
-    print("=== Log Cluster Schema MCP Server ===")
-    print("Testing log_schema tool...")
+    import sys
     
-    try:
-        result = log_schema()
-        if result.get("success"):
-            data = result["data"]
-            print(f" Successfully loaded {data['total_clusters']} clusters")
-            print(f"   Total training logs: {data['total_training_logs']}")
-            print(f"   Next available ID: {data['registry_info']['next_available_id']}")
-            print("\nFirst 3 clusters:")
-            for i, (cluster_id, info) in enumerate(list(data["clusters"].items())[:3]):
-                print(f"   Cluster {cluster_id}: {info['description']} ({info['training_size']} logs)")
-                print(f"      Patterns: {len(info['patterns'])} pattern(s)")
-        else:
-            print(f"L Error: {result.get('error', 'Unknown error')}")
-            print(f"   Message: {result.get('message', 'No details available')}")
-            
-    except Exception as e:
-        print(f"❌ Test failed: {e}")
-    
-    # Test log_query tool
-    print("\nTesting log_query tool...")
-    
-    try:
-        # Test with sample parameters
-        query_result = log_query(
-            log_cluster_id=3,
-            pattern=": :",
-            limit=5,
-            offset=0,
-            shallow=False
-        )
+    # Check if running in test mode
+    if len(sys.argv) > 1 and sys.argv[1] == "--test":
+        # Test the server functionality when run with --test flag
+        print("=== Log Cluster Schema MCP Server ===")
+        print("Testing log_schema tool...")
         
-        if query_result.get("success"):
-            data = query_result["data"]
-            metadata = data["metadata"]
-            print(f"✅ Query successful: found {metadata['total_matches']} total matches")
-            print(f"   Returned {metadata['returned_count']} logs from cluster {metadata['cluster_id']}")
-            print(f"   Pattern filter: '{metadata['pattern_filter']}'")
-            print(f"   Is end: {metadata['isEnd']}")
-            
-            if data["text"]:
-                first_log = data["text"].split('\n')[0]
-                print(f"   First log: {first_log[:80]}...")
-        else:
-            print(f"❌ Query failed: {query_result.get('error', 'Unknown error')}")
-            print(f"   Message: {query_result.get('message', 'No details available')}")
-            
-    except Exception as e:
-        print(f"❌ Query test failed: {e}")
-    
-    # Test log_filter tool
-    print("\nTesting log_filter tool...")
-    
-    try:
-        # Test with sample parameters - extract unified field indices
-        filter_result = log_filter(
-            cluster_id=3,
-            pattern=":",
-            field_indices=[0, 1, 2],
-            limit=3,
-            offset=0
-        )
+        try:
+            result = log_schema()
+            if result.get("success"):
+                data = result["data"]
+                print(f" Successfully loaded {data['total_clusters']} clusters")
+                print(f"   Total training logs: {data['total_training_logs']}")
+                print(f"   Next available ID: {data['registry_info']['next_available_id']}")
+                print("\nFirst 3 clusters:")
+                for i, (cluster_id, info) in enumerate(list(data["clusters"].items())[:3]):
+                    print(f"   Cluster {cluster_id}: {info['description']} ({info['training_size']} logs)")
+                    print(f"      Patterns: {len(info['patterns'])} pattern(s)")
+            else:
+                print(f"❌ Test failed: {result.get('error', 'Unknown error')}")
+                print(f"   Message: {result.get('message', 'No details available')}")
+                
+        except Exception as e:
+            print(f"❌ Test failed: {e}")
         
-        if filter_result.get("success"):
-            data = filter_result["data"]
-            metadata = data["metadata"]
-            print(f"✅ Filter successful: found {metadata['total_matches']} total matches")
-            print(f"   Returned {metadata['returned_count']} logs from cluster {metadata['cluster_id']}")
-            print(f"   Pattern filter: '{metadata['pattern_filter']}'")
-            print(f"   Field indices: {metadata['field_indices']}")
+        # Test log_query tool
+        print("\nTesting log_query tool...")
+        
+        try:
+            # Test with sample parameters
+            query_result = log_query(
+                log_cluster_id=3,
+                pattern=": :",
+                limit=5,
+                offset=0,
+                shallow=False
+            )
             
-            if data["text"]:
-                first_line = data["text"].split('\n')[0]
-                print(f"   First extracted line: {first_line}")
-                print(f"   Total extracted text length: {len(data['text'])} chars")
-        else:
-            print(f"❌ Filter failed: {filter_result.get('error', 'Unknown error')}")
-            print(f"   Message: {filter_result.get('message', 'No details available')}")
+            if query_result.get("success"):
+                data = query_result["data"]
+                metadata = data["metadata"]
+                print(f"✅ Query successful: found {metadata['total_matches']} total matches")
+                print(f"   Returned {metadata['returned_count']} logs from cluster {metadata['cluster_id']}")
+                print(f"   Pattern filter: '{metadata['pattern_filter']}'")
+                print(f"   Is end: {metadata['isEnd']}")
+                
+                if data["text"]:
+                    first_log = data["text"].split('\n')[0]
+                    print(f"   First log: {first_log[:80]}...")
+            else:
+                print(f"❌ Query failed: {query_result.get('error', 'Unknown error')}")
+                print(f"   Message: {query_result.get('message', 'No details available')}")
+                
+        except Exception as e:
+            print(f"❌ Query test failed: {e}")
+        
+        # Test log_filter tool
+        print("\nTesting log_filter tool...")
+        
+        try:
+            # Test with sample parameters - extract unified field indices
+            filter_result = log_filter(
+                cluster_id=3,
+                pattern=":",
+                field_indices=[0, 1, 2],
+                limit=3,
+                offset=0
+            )
             
-    except Exception as e:
-        print(f"❌ Filter test failed: {e}")
+            if filter_result.get("success"):
+                data = filter_result["data"]
+                metadata = data["metadata"]
+                print(f"✅ Filter successful: found {metadata['total_matches']} total matches")
+                print(f"   Returned {metadata['returned_count']} logs from cluster {metadata['cluster_id']}")
+                print(f"   Pattern filter: '{metadata['pattern_filter']}'")
+                print(f"   Field indices: {metadata['field_indices']}")
+                
+                if data["text"]:
+                    first_line = data["text"].split('\n')[0]
+                    print(f"   First extracted line: {first_line}")
+                    print(f"   Total extracted text length: {len(data['text'])} chars")
+            else:
+                print(f"❌ Filter failed: {filter_result.get('error', 'Unknown error')}")
+                print(f"   Message: {filter_result.get('message', 'No details available')}")
+                
+        except Exception as e:
+            print(f"❌ Filter test failed: {e}")
+        
+        print("\n💡 To use as MCP server, run: python src/log_mcp.py")
+        print("   Or integrate with Claude Desktop via MCP configuration")
+        print("\n🔧 Available tools:")
+        print("   - log_schema(): Get all cluster IDs and patterns")
+        print("   - log_query(cluster_id, pattern, limit, offset, shallow): Query logs with filters")
+        print("   - log_filter(cluster_id, pattern, field_indices, limit, offset): Extract specific fields by unified indices")
     
-    print("\n💡 To use as MCP server, run: uv run mcp dev src/log_mcp.py")
-    print("   Or integrate with Claude Desktop via MCP configuration")
-    print("\n🔧 Available tools:")
-    print("   - log_schema(): Get all cluster IDs and patterns")
-    print("   - log_query(cluster_id, pattern, limit, offset, shallow): Query logs with filters")
-    print("   - log_filter(cluster_id, pattern, field_indices, limit, offset): Extract specific fields by unified indices")
+    else:
+        # Run as MCP server by default
+        mcp.run(transport="stdio")
